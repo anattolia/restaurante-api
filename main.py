@@ -26,7 +26,6 @@ origins = [
     "http://localhost:8081",
     "127.0.0.1:8000", 
     "127.0.0.1:8081", 
-    "http://localhost:8000", 
     "https://restaurante-app-antonia.herokuapp.com"
 
 ]
