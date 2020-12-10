@@ -1,0 +1,75 @@
+{
+	"info": {
+		"_postman_id": "7d825a31-1e69-40bb-921c-631ed9c99168",
+		"name": "G1M2E2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "New Request",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://restauranteapi02.herokuapp.com/cliente/consulta/3214567895",
+					"protocol": "http",
+					"host": [
+						"restauranteapi02",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"cliente",
+						"consulta",
+						"3214567895"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"telefono\": 3214860227,\r\n    \"nombre\":\"Antonia\",\r\n    \"direccion\":\"Carrera 26 # 39 - 12\",\r\n    \"barrio\":\"Teusaquillo\",\r\n    \"cedula\":\"1123456123\",\r\n    \"cumpleanos\": \"1988-1-10\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://restauranteapi02.herokuapp.com/cliente/crear/",
+					"protocol": "http",
+					"host": [
+						"restauranteapi02",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"cliente",
+						"crear",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
