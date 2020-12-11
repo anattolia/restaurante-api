@@ -4,34 +4,17 @@ from models.usuario_models import UsuarioIn, UsuarioOut
 from db.cliente_db import ClienteInDB
 from db.cliente_db import update_cliente, get_cliente, create_cliente, eliminate_cliente, get_all_clientes
 from models.cliente_models import ClienteIn, ClienteOut, ClienteInCreate
-#from db.venta_db import VentaInDB
-#from db.venta_db import 
-#from models.venta_models import VentaIn, VentaOut
+from db.inventario_db import ProductoInDB
+from db.inventario_db import update_producto, get_producto, create_producto, delete_producto, get_all_productos
+from models.inventario_models import ProductoIn, ProductoOut, ProductoInCreate
+from models.venta_models import VentaIn, VentaOut
+from db.venta_db import VentaInDB, get_all_ventas,save_venta,get_venta
 
 import datetime
 
 from fastapi import FastAPI
 from fastapi import HTTPException
-
 api = FastAPI()
-
-#####
-from fastapi.middleware.cors import CORSMiddleware
-
-origins = [
-    "http://localhost.tiangolo.com", 
-    "https://localhost.tiangolo.com",
-    "http://localhost", 
-    "http://localhost:8080",
-    "http://localhost:8081", 
-    "https://restaurante-app-antonia.herokuapp.com"
-
-]
-
-api.add_middleware(
-    CORSMiddleware, allow_origins=origins,
-    allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
-)
 
 @api.post("/usuario/autenticacion/")
 async def auth_user(user_in: UsuarioIn):
@@ -43,8 +26,6 @@ async def auth_user(user_in: UsuarioIn):
         raise HTTPException(status_code=401, detail="Error en la autenticación")
     return {"Autenticado": True}
 
-
- 
 @api.post("/usuario/crear/") 
 async def create_user(user_in: UsuarioIn):
     user_in_db=update_usuario(user_in)
@@ -59,7 +40,7 @@ async def buscar_cliente(telefono: int):
     cliente_in_db = get_cliente(telefono)
     if cliente_in_db == None:
         raise HTTPException(status_code=404,
-                            detail="El usuario no existe")
+                            detail="El cliente no existe")
     cliente_out = ClienteOut(**cliente_in_db.dict())
     return cliente_out   
 
@@ -72,9 +53,7 @@ async def buscar_clientes():
         clientes_out.append(cliente_out)
     return clientes_out
 
-
 @api.post("/cliente/crear/") 
-
 async def crear_cliente(cliente_in: ClienteInCreate):
     cliente_in_db = create_cliente(cliente_in)
     cliente_out = ClienteOut(**cliente_in_db.dict())
@@ -85,7 +64,7 @@ async def upd_cliente(cliente_in: ClienteInCreate):
     cliente_in_db = get_cliente(cliente_in.telefono)
     if cliente_in_db == None:
         raise HTTPException(status_code=404,
-                            detail="El usuario no existe")
+                            detail="El cliente no existe")
     
     cliente_in_db = ClienteInCreate(**cliente_in.dict())
 
@@ -100,62 +79,87 @@ async def delete_cliente(cliente_in: ClienteIn):
     cliente_in_db = get_cliente(cliente_in.telefono)
     if cliente_in_db == None:
         raise HTTPException(status_code=404,
-                            detail="El usuario no existe")
+                            detail="El cliente no existe")
     cliente_out = eliminate_cliente(cliente_in_db)
     return cliente_out
 
+#####Inventario
 
+@api.post("/producto/crear/") 
+async def crear_producto(producto_in: ProductoInCreate):
+    producto_in_db = create_producto(producto_in)
+    producto_out = ProductoOut(**producto_in_db.dict())
+    return producto_out
 
+@api.get("/producto/consulta/{id}")
+async def buscar_producto(id: str):
+    producto_in_db = get_producto(id)
+    if producto_in_db == None:
+        raise HTTPException(status_code=404,
+                            detail="El producto no existe")
+    producto_out = ProductoOut(**producto_in_db.dict())
+    return producto_out  
 
+@api.get("/producto/lista/")
+async def buscar_productos():
+    productos_in_db = get_all_productos()
+    productos_out = []
+    for producto in productos_in_db:
+        producto_out = ProductoOut(**producto.dict())
+        productos_out.append(producto_out)
+    return productos_out
 
-    ###########solo para pueba vue ##########
-    @api.post("/user/auth/")
-async def auth_user(user_in: UserIn):
+@api.put("/producto/update/")
+async def update_producto(producto_in: ProductoInCreate):
+    producto_in_db = get_producto(producto_in.id)
+    if producto_in_db == None:
+        raise HTTPException(status_code=404,
+                            detail="El producto no existe")
     
-    user_in_db = get_user(user_in.username)
+    producto_in_db = ProductoInCreate(**producto_in.dict())
+
+    update_producto(producto_in_db)
+    
+    update_out = ProductoOut(**producto_in_db.dict())
+    return update_out
+
+@api.delete("/producto/delete/") 
+
+async def delete_producto(producto_in: ProductoIn):
+    producto_in_db = get_producto(producto_in.id)
+    if producto_in_db == None:
+        raise HTTPException(status_code=404,
+                            detail="El producto no existe")
+    producto_out = delete_producto(producto_in_db)
+    return producto_out
+
+@api.get("/venta/list/")
+async def lista_ventas():
+    ventas_in_db = get_all_ventas()
+    ventas_out = []
+    for venta in ventas_in_db:
+        venta_out = VentaOut(**venta.dict())
+        ventas_out.append(venta_out)
+    return ventas_out
+
+
+@api.put("/venta/make/")
+async def make_venta(venta_in: VentaIn):
+    
+    user_in_db = get_usuario(venta_in.username)
 
     if user_in_db == None:
-        raise HTTPException(status_code=404, detail="El usuario no existe")
-    
-    if user_in_db.password != user_in.password:
-        return  {"Autenticado": False}
+        
+        raise HTTPException(status_code=404, detail="El usuario no tiene permisos para hacer ventas"
+     ### venta_total = acá tendría en cuenta la cantidad de productos y precio del producto para saber el precio total de acuerdo a inventario
+    venta_in_db = VentaInDB(**venta_in.dict())
+    venta_in_db = save_venta(venta_in_db)
+    venta_out = VentaOut(**venta_in_db.dict())
 
-    return  {"Autenticado": True}
+    return  venta_out    
 
-
-
-@api.get("/user/balance/{username}")
-async def get_balance(username: str):
-    
-    user_in_db = get_user(username)
-
-    if user_in_db == None:
-        raise HTTPException(status_code=404, detail="El usuario no existe")
-    
-    user_out = UserOut(**user_in_db.dict())
-
-    return  user_out
-
-
-
-@api.put("/user/transaction/")
-async def make_transaction(transaction_in: TransactionIn):
-    
-    user_in_db = get_user(transaction_in.username)
-
-    if user_in_db == None:
-        raise HTTPException(status_code=404, detail="El usuario no existe")
-    
-    if user_in_db.balance < transaction_in.value:
-        raise HTTPException(status_code=400, detail="No se tienen los fondos suficientes")
-
-    user_in_db.balance = user_in_db.balance - transaction_in.value
-    update_user(user_in_db)
-
-    transaction_in_db = TransactionInDB(**transaction_in.dict(), actual_balance = user_in_db.balance)
-    transaction_in_db = save_transaction(transaction_in_db)
-
-    transaction_out = TransactionOut(**transaction_in_db.dict())
-
-    return  transaction_out
-
+@api.get("/venta/consulta/{telefono}")
+async def buscar_venta(telefono: int):
+    venta_in_db = get_all_ventas(telefono)
+    if venta_in_db == None:
+        raise HTTPException(status_code=404,

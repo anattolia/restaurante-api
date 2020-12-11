@@ -45,7 +45,7 @@ def create_cliente(nuevo_cliente: ClienteInDB):
 
 def eliminate_cliente(cliente: ClienteInDB):
     del database_clientes[cliente.telefono]
-    return "Se eliminó satisfactoriamente"
+    return "Se elimino satisfactoriamente"
 
 def get_all_clientes():
     return database_clientes.values()
